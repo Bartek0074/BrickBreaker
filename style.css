@@ -14,7 +14,7 @@ body {
 }
 
 canvas {
-    background-color: #d1d1d1;
+    background-color: rgb(209, 209, 209);
     border: 5px solid #3d3d3d;
     border-bottom: none;
 }

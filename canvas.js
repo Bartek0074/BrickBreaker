@@ -14,7 +14,7 @@ const wPaddle = 75;
 const hPaddle = 5;
 const paddleVelocity = 5;
 const radiusBall = 5;
-const ballVelocity = 15;
+const ballVelocity = 5;
 let isStarted = false;
 
 // Utility functions
@@ -40,7 +40,7 @@ class Paddle {
         this.draw = function() {
             ctx.beginPath();
             ctx.rect(this.x, this.y, this.w, this.h);
-            ctx.fillStyle = 'royalblue';
+            ctx.fillStyle = '#B42B51';
             ctx.fill();
             ctx.closePath();
         }
@@ -72,7 +72,7 @@ class Ball {
         this.draw = function() {
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-            ctx.fillStyle = 'tomato';
+            ctx.fillStyle = 'royalblue';
             ctx.fill();
             ctx.closePath();
         }
@@ -104,6 +104,25 @@ class Ball {
                     }
                 }
 
+                // collision between bricks and ball
+                for (let i = 0; i < bricks.length; i++) {
+                    const distX = Math.abs(this.x - bricks[i].x - (bricks[i].w / 2));
+                    const distY = Math.abs(this.y - bricks[i].y - (bricks[i].h / 2));
+
+                    if (distX <= this.radius + (bricks[i].w / 2) &&
+                    distY <= this.radius + (bricks[i].h / 2)
+                    ) {
+                        if (this.x >= bricks[i].x && this.x <= bricks[i].x + bricks[i].w) {
+                            this.dy = -this.dy;
+                            bricks.splice(i, 1);
+                        }
+                        else if (this.y >= bricks[i].y && this.y <= bricks[i].y + bricks[i].h) {
+                            this.dx = -this.dx;
+                            bricks.splice(i, 1);
+                        }
+                    }
+                }
+                
                 // lose case
                 if(this.y - this.radius >= canvas.height) {
                     this.dx = 0;
@@ -127,13 +146,52 @@ class Ball {
     }
 }
 
+class Brick {
+    constructor(x, y, w, h){
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+
+        this.draw = function() {
+            ctx.beginPath();
+            ctx.rect(this.x, this.y, this.w, this.h);
+            ctx.fillStyle = '#B42B51';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(209, 209, 209, 1)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        this.update = function() {
+
+            this.draw();
+        }
+    }
+}
+
 // Implementation
 let paddle;
 let ball;
+let bricks = [];
 
 function init() {
+    bricks = [];
     paddle = new Paddle(canvas.width/2 - wPaddle/2, canvas.height - hPaddle * 2, wPaddle, hPaddle);
-    ball = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, 270, radiusBall)
+    ball = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, 270, radiusBall);
+    
+    const gap = 15;
+    const hBrick = 15;
+    const rows = 10;
+    const columns = 10;
+    const bricsLineWidth = canvas.width - gap * 2;
+    for (let i = 0; i < columns; i++){
+        for (let j = 0; j < rows; j++){
+            const brick = new Brick(gap + i * bricsLineWidth / columns, j * hBrick + gap, bricsLineWidth/columns, hBrick);
+            bricks.push(brick);
+        }
+    }
 }
 
 // Animation loop
@@ -142,6 +200,9 @@ function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     paddle.update();
     ball.update();
+    bricks.forEach(brick => {
+        brick.update();
+    })
 }
 
 // Event listeners
