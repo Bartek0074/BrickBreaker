@@ -2,10 +2,14 @@
 const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 
+const livesText = document.querySelector('.lives')
+
 canvas.width = 350;
 canvas.height = 450;
 
 // Variables
+let lives = 3;
+
 let keys = {
     arrowLeft: false,
     arrowRight: false
@@ -15,17 +19,43 @@ const hPaddle = 5;
 const paddleVelocity = 5;
 const radiusBall = 5;
 const ballVelocity = 5;
-let isStarted = false;
+let isGameStarted = false;
+let isGamePaused = false;
+let isBallMoved = false;
 
 // Utility functions
+function randomIntFromRange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 function controlPaddle() {
     if (keys.arrowLeft === true && keys.arrowRight === false) paddle.dx = -paddleVelocity;
     else if (keys.arrowLeft === false && keys.arrowRight === true) paddle.dx = paddleVelocity;
     else paddle.dx = 0;
 }
 
-function randomIntFromRange(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+function updateInfoGame() {
+    livesText.textContent = `LIVES: ${lives}`;
+}
+
+function initInstruction() {
+    ctx.fillStyle = "#003300";
+    ctx.font = "22px sans-serif";
+    const textString = "Spacebar - set ball in movement",
+    textWidth = ctx.measureText(textString ).width; 
+    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/5);
+
+    const textString2 = "Arrows - move bar",
+    textWidth2 = ctx.measureText(textString2).width; 
+    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2)/5);
+    
+    const textString3 = "P - pause the game",
+    textWidth3 = ctx.measureText(textString3).width; 
+    ctx.fillText(textString3 , (canvas.width/2) - (textWidth3 / 2), (canvas.height * 3)/5);
+
+    const textString4 = "Enter - start the game",
+    textWidth4 = ctx.measureText(textString4).width; 
+    ctx.fillText(textString4 , (canvas.width/2) - (textWidth4 / 2), (canvas.height * 4)/5);
 }
 
 // Classes
@@ -55,14 +85,14 @@ class Paddle {
 }
 
 class Ball {
-    constructor(x, y, velocity, angle, radius){
+    constructor(x, y, velocity, radius){
         this.x = x;
         this.y = y;
         this.velocity = velocity;
-        this.angle = angle;
+        this.radius = radius;
+        let angle;
         this.dx = Math.cos(this.angle * (Math.PI / 180)) * this.velocity;
         this.dy = Math.sin(this.angle * (Math.PI / 180)) * this.velocity;
-        this.radius = radius;
 
         this.updateVelocity = function() {
             this.dx = Math.cos(this.angle * (Math.PI / 180)) * this.velocity;
@@ -78,7 +108,7 @@ class Ball {
         }
 
         this.update = function() {
-            if (isStarted){
+            if (isBallMoved){
                 // collision between walls and ball
                 if(this.y - this.radius <= 0) {
                     this.dy = -this.dy;
@@ -129,7 +159,12 @@ class Ball {
                     this.dy = 0;
                     this.x = paddle.x + paddle.w/2;
                     this.y = paddle.y - radiusBall;
-                    isStarted = false;
+                    isBallMoved = false;
+                    lives--;
+                    updateInfoGame();
+                    if (lives === 0) {
+                        stopGame();
+                    }
                 }
 
                 this.y += this.dy;
@@ -139,6 +174,7 @@ class Ball {
                 this.x = paddle.x + paddle.w/2;
                 this.y = paddle.y - radiusBall;
                 this.angle = (this.x / canvas.width) * 180 + 180;
+                if (this.angle === 270) this.angle = 270.1;
                 this.updateVelocity();
             }
             this.draw();
@@ -179,7 +215,7 @@ let bricks = [];
 function init() {
     bricks = [];
     paddle = new Paddle(canvas.width/2 - wPaddle/2, canvas.height - hPaddle * 2, wPaddle, hPaddle);
-    ball = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, 270, radiusBall);
+    ball = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall);
     
     const gap = 15;
     const hBrick = 15;
@@ -195,8 +231,9 @@ function init() {
 }
 
 // Animation loop
+let req;
 function animate() {
-    requestAnimationFrame(animate);
+    req = requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     paddle.update();
     ball.update();
@@ -209,7 +246,11 @@ function animate() {
 window.addEventListener('keydown', e => {
     if (e.code === 'ArrowLeft') keys.arrowLeft = true;
     if (e.code === 'ArrowRight') keys.arrowRight = true;
-    if (e.code  === 'Space') isStarted = true;
+    if (e.code  === 'Space' && isGameStarted === true) isBallMoved = true;
+    if (e.code  === 'Enter' && isGameStarted === false) startGame();
+    if (e.code  === 'KeyP' && isGameStarted === true && isGamePaused === false) pauseGame();
+    else if (e.code  === 'KeyP' && isGameStarted === true && isGamePaused === true) resumeGame();
+    
     controlPaddle();
 })
 
@@ -219,11 +260,29 @@ window.addEventListener('keyup', e => {
     controlPaddle();
 })
 
-// Start game function
+// Start, stop game function
 
 function startGame() {
+    isGameStarted = true;
     init();
     animate();
 }
 
-startGame();
+function pauseGame() {
+    cancelAnimationFrame(req);
+    isGamePaused = true;
+}
+
+function resumeGame() {
+    requestAnimationFrame(animate);
+    isGamePaused = false;
+}
+
+function stopGame() {
+    cancelAnimationFrame(req);
+}
+
+initInstruction();
+init();
+
+// startGame();
