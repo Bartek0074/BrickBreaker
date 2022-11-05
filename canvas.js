@@ -14,7 +14,7 @@ const wPaddle = 75;
 const hPaddle = 5;
 const paddleVelocity = 5;
 const radiusBall = 5;
-const ballVelocity = 5;
+const ballVelocity = 15;
 let isStarted = false;
 
 // Utility functions
@@ -79,7 +79,40 @@ class Ball {
 
         this.update = function() {
             if (isStarted){
-                console.log('is playing')
+                // collision between walls and ball
+                if(this.y - this.radius <= 0) {
+                    this.dy = -this.dy;
+                }
+                if(this.x - this.radius <= 0 || this.x + this.radius >= canvas.width) {
+                    this.dx = -this.dx;
+                }
+
+                // collision between paddle and ball
+                if (this.y + this.dy + this.radius > paddle.y && 
+                    this.x >= paddle.x &&
+                    this.x <= paddle.x + paddle.w) {
+                    this.dy = -this.dy;
+                    let distanceFromCenter = this.x - paddle.x - (paddle.w / 2);
+                    if (distanceFromCenter > 0) {
+                        this.angle = (distanceFromCenter / (paddle.w / 2) * 60 + 270);
+                        this.updateVelocity();
+                    }
+                    else if (distanceFromCenter < 0) {
+                        distanceFromCenter = -distanceFromCenter;
+                        this.angle = (270 - distanceFromCenter / (paddle.w / 2) * 60);
+                        this.updateVelocity();
+                    }
+                }
+
+                // lose case
+                if(this.y - this.radius >= canvas.height) {
+                    this.dx = 0;
+                    this.dy = 0;
+                    this.x = paddle.x + paddle.w/2;
+                    this.y = paddle.y - radiusBall;
+                    isStarted = false;
+                }
+
                 this.y += this.dy;
                 this.x += this.dx;
             }
@@ -88,7 +121,6 @@ class Ball {
                 this.y = paddle.y - radiusBall;
                 this.angle = (this.x / canvas.width) * 180 + 180;
                 this.updateVelocity();
-                console.log(this.angle);
             }
             this.draw();
         }
