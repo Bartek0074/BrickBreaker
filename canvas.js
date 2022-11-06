@@ -58,6 +58,18 @@ function initInstruction() {
     ctx.fillText(textString4 , (canvas.width/2) - (textWidth4 / 2), (canvas.height * 4)/5);
 }
 
+function initLoseText() {
+    ctx.fillStyle = "#003300";
+    ctx.font = "26px sans-serif";
+    const textString = "You lose!",
+    textWidth = ctx.measureText(textString ).width; 
+    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2 - 30);
+
+    const textString2 = "Click enter to play again",
+    textWidth2 = ctx.measureText(textString2).width; 
+    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), canvas.height/2 + 30);
+}
+
 // Classes
 class Paddle {
     constructor(x, y, w, h) {
@@ -162,9 +174,6 @@ class Ball {
                     isBallMoved = false;
                     lives--;
                     updateInfoGame();
-                    if (lives === 0) {
-                        stopGame();
-                    }
                 }
 
                 this.y += this.dy;
@@ -233,13 +242,19 @@ function init() {
 // Animation loop
 let req;
 function animate() {
-    req = requestAnimationFrame(animate);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    paddle.update();
-    ball.update();
-    bricks.forEach(brick => {
-        brick.update();
-    })
+    if (lives !== 0) {
+        req = requestAnimationFrame(animate);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        paddle.update();
+        ball.update();
+        bricks.forEach(brick => {
+            brick.update();
+        })
+    }
+    else {
+        stopGame();
+
+    }
 }
 
 // Event listeners
@@ -263,6 +278,8 @@ window.addEventListener('keyup', e => {
 // Start, stop game function
 
 function startGame() {
+    lives = 3;
+    updateInfoGame();
     isGameStarted = true;
     init();
     animate();
@@ -279,7 +296,9 @@ function resumeGame() {
 }
 
 function stopGame() {
-    cancelAnimationFrame(req);
+    isGameStarted = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    initLoseText();
 }
 
 initInstruction();
