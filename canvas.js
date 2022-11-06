@@ -4,8 +4,8 @@ const ctx = canvas.getContext('2d');
 
 const livesText = document.querySelector('.lives')
 
-canvas.width = 350;
-canvas.height = 450;
+canvas.width = 650;
+canvas.height = 500;
 
 // Variables
 let lives = 3;
@@ -14,14 +14,17 @@ let keys = {
     arrowLeft: false,
     arrowRight: false
 }
-const wPaddle = 75;
+
+const wPaddle = 80;
 const hPaddle = 5;
-const paddleVelocity = 5;
+const paddleVelocity = 7.5;
 const radiusBall = 5;
-const ballVelocity = 5;
+const wExtras = 15;
+const hExtras = 20;
+const ballVelocity = 7.5;
+const extrasVelocity = 3;
 let isGameStarted = false;
 let isGamePaused = false;
-let isBallMoved = false;
 
 // Utility functions
 function randomIntFromRange(min, max) {
@@ -97,7 +100,7 @@ class Paddle {
 }
 
 class Ball {
-    constructor(x, y, velocity, radius){
+    constructor(x, y, velocity, radius, isBallMoved){
         this.x = x;
         this.y = y;
         this.velocity = velocity;
@@ -105,6 +108,8 @@ class Ball {
         let angle;
         this.dx = Math.cos(this.angle * (Math.PI / 180)) * this.velocity;
         this.dy = Math.sin(this.angle * (Math.PI / 180)) * this.velocity;
+
+        this.isBallMoved = isBallMoved;
 
         this.updateVelocity = function() {
             this.dx = Math.cos(this.angle * (Math.PI / 180)) * this.velocity;
@@ -120,7 +125,7 @@ class Ball {
         }
 
         this.update = function() {
-            if (isBallMoved){
+            if (this.isBallMoved){
                 // collision between walls and ball
                 if(this.y - this.radius <= 0) {
                     this.dy = -this.dy;
@@ -154,6 +159,16 @@ class Ball {
                     if (distX <= this.radius + (bricks[i].w / 2) &&
                     distY <= this.radius + (bricks[i].h / 2)
                     ) {
+                        // chance of dropping extras
+                        const chance = Math.random()
+                        console.log(chance)
+
+                        if (chance < 0.1) {
+                            const extras = new Extras(this.x + wExtras, this.y);
+                            extrases.push(extras)
+                        }
+
+
                         if (this.x >= bricks[i].x && this.x <= bricks[i].x + bricks[i].w) {
                             this.dy = -this.dy;
                             bricks.splice(i, 1);
@@ -165,15 +180,21 @@ class Ball {
                     }
                 }
                 
-                // lose case
-                if(this.y - this.radius >= canvas.height) {
-                    this.dx = 0;
-                    this.dy = 0;
-                    this.x = paddle.x + paddle.w/2;
-                    this.y = paddle.y - radiusBall;
-                    isBallMoved = false;
-                    lives--;
-                    updateInfoGame();
+
+                for (let i = 0; i < balls.length; i++) {
+                    // miss ball
+                    if(balls[i].y - balls[i].radius >= canvas.height) {
+                        balls.splice(i, 1);
+
+                        if (balls.length === 0) {
+                            const ball = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall, false);
+                            balls.push(ball);
+                            extrases = [];
+                            lives--;
+                            updateInfoGame();
+                        }
+                    }
+                    
                 }
 
                 this.y += this.dy;
@@ -192,7 +213,7 @@ class Ball {
 }
 
 class Brick {
-    constructor(x, y, w, h){
+    constructor(x, y, w, h) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -216,20 +237,84 @@ class Brick {
     }
 }
 
+class Extras{
+    constructor(x, y) {
+        this.x = x;
+        this.y = y
+        this.w = wExtras;
+        this.h = hExtras;
+        this.dy = extrasVelocity;
+
+        this.draw = function() {
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x + this.w, this.y);
+            ctx.lineWidth = this.h;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'blue';
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        this.update = function() {
+            for (let i = 0; i < extrases.length; i++) {
+                // miss extras
+                if (extrases[i].y + this.dy - hExtras / 2 >= canvas.height) {
+                    extrases.splice(i, 1);
+                }
+
+                // collect extras
+                else if (extrases[i].y + extrases[i].dy + extrases[i].h / 2 >= paddle.y &&
+                    extrases[i].x + extrases[i].w + extrases[i].h / 2 >= paddle.x &&
+                    extrases[i].x - extrases[i].h <= paddle.x + paddle.w) {
+                        for (let i = 0; i < 3; i++){
+                            const newBall = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall, true);
+                            const newAngle = randomIntFromRange(220, 320)
+                            newBall.dx = Math.cos(newAngle * (Math.PI / 180)) * ballVelocity;
+                            newBall.dy = Math.sin(newAngle * (Math.PI / 180)) * ballVelocity;
+                            balls.push(newBall); 
+                        }
+                                               
+                        extrases.splice(i, 1);
+                }
+            }
+
+            this.y += this.dy; 
+
+            this.draw();
+        }
+    }
+}
+
 // Implementation
 let paddle;
-let ball;
+let balls = [];
 let bricks = [];
+let extrases = [];
+
+function initBall() {
+    const newBall = new Ball(12, 12, 5, 5, true);
+    const angle = randomIntFromRange(100, 120)
+    newBall.dx = Math.cos(angle * (Math.PI / 180)) * ballVelocity;
+    newBall.dy = Math.sin(angle * (Math.PI / 180)) * ballVelocity;
+    balls.push(newBall);
+    
+}
 
 function init() {
+    balls = [];
     bricks = [];
+    extrases = [];
+
     paddle = new Paddle(canvas.width/2 - wPaddle/2, canvas.height - hPaddle * 2, wPaddle, hPaddle);
-    ball = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall);
-    
-    const gap = 15;
-    const hBrick = 15;
-    const rows = 10;
-    const columns = 10;
+
+    const ball = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall, false);
+    balls.push(ball);
+ 
+    const gap = 25;
+    const hBrick = 20;
+    const rows = 8;
+    const columns = 12;
     const bricsLineWidth = canvas.width - gap * 2;
     for (let i = 0; i < columns; i++){
         for (let j = 0; j < rows; j++){
@@ -246,14 +331,18 @@ function animate() {
         req = requestAnimationFrame(animate);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         paddle.update();
-        ball.update();
+        balls.forEach(ball => {
+            ball.update();
+        })
         bricks.forEach(brick => {
             brick.update();
+        })
+        extrases.forEach(extras => {
+            extras.update();
         })
     }
     else {
         stopGame();
-
     }
 }
 
@@ -261,7 +350,7 @@ function animate() {
 window.addEventListener('keydown', e => {
     if (e.code === 'ArrowLeft') keys.arrowLeft = true;
     if (e.code === 'ArrowRight') keys.arrowRight = true;
-    if (e.code  === 'Space' && isGameStarted === true) isBallMoved = true;
+    if (e.code  === 'Space' && isGameStarted === true) balls[0].isBallMoved = true;
     if (e.code  === 'Enter' && isGameStarted === false) startGame();
     if (e.code  === 'KeyP' && isGameStarted === true && isGamePaused === false) pauseGame();
     else if (e.code  === 'KeyP' && isGameStarted === true && isGamePaused === true) resumeGame();
@@ -302,6 +391,3 @@ function stopGame() {
 }
 
 initInstruction();
-init();
-
-// startGame();

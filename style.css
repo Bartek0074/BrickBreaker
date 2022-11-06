@@ -24,7 +24,7 @@ body {
     display: flex;
     padding: .5em 0;
     justify-content: space-between;
-    width: 360px;
+    width: 660px;
     background-color: rgb(209, 209, 209);
     border: 5px solid #3d3d3d;
     border-bottom: none;
