@@ -17,7 +17,7 @@ body {
     height: 100vh;
     background-color: #e1e1e1;
     font-size: 1.6rem;
-    font-family: 'Press Start 2P', cursive;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
 }
 
 .info-bar{
@@ -31,8 +31,8 @@ body {
 }
 
 .info-bar p {
-    margin: 1em;
-    font-size: 1.4rem;
+    margin: .5em .75em;
+    font-size: 2.4rem;
     color: #111;
 }
 

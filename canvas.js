@@ -43,32 +43,32 @@ function updateInfoGame() {
 
 function initInstruction() {
     ctx.fillStyle = "#003300";
-    ctx.font = "22px sans-serif";
-    const textString = "Spacebar - set ball in movement",
+    ctx.font = "24px Gill Sans";
+    const textString = "SPACEBAR - SET BALL IN MOVEMENT",
     textWidth = ctx.measureText(textString ).width; 
     ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/5);
 
-    const textString2 = "Arrows - move bar",
+    const textString2 = "ARROWS - MOVE PADDLE",
     textWidth2 = ctx.measureText(textString2).width; 
     ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2)/5);
     
-    const textString3 = "P - pause the game",
+    const textString3 = "P - PAUSE THE GAME",
     textWidth3 = ctx.measureText(textString3).width; 
     ctx.fillText(textString3 , (canvas.width/2) - (textWidth3 / 2), (canvas.height * 3)/5);
 
-    const textString4 = "Enter - start the game",
+    const textString4 = "ENTER - START THE GAME",
     textWidth4 = ctx.measureText(textString4).width; 
     ctx.fillText(textString4 , (canvas.width/2) - (textWidth4 / 2), (canvas.height * 4)/5);
 }
 
 function initLoseText() {
     ctx.fillStyle = "#003300";
-    ctx.font = "26px sans-serif";
-    const textString = "You lose!",
+    ctx.font = "24px Gill Sans";
+    const textString = "YOU LOSE!",
     textWidth = ctx.measureText(textString ).width; 
     ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2 - 30);
 
-    const textString2 = "Click enter to play again",
+    const textString2 = "CLICK ENTER TO PLAY AGAIN",
     textWidth2 = ctx.measureText(textString2).width; 
     ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), canvas.height/2 + 30);
 }
@@ -85,7 +85,7 @@ class Paddle {
         this.draw = function() {
             ctx.beginPath();
             ctx.rect(this.x, this.y, this.w, this.h);
-            ctx.fillStyle = '#B42B51';
+            ctx.fillStyle = '#66c2a5';
             ctx.fill();
             ctx.closePath();
         }
@@ -119,7 +119,7 @@ class Ball {
         this.draw = function() {
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-            ctx.fillStyle = 'royalblue';
+            ctx.fillStyle = '#f46d43';
             ctx.fill();
             ctx.closePath();
         }
@@ -161,11 +161,14 @@ class Ball {
                     ) {
                         // chance of dropping extras
                         const chance = Math.random()
-                        console.log(chance)
 
                         if (chance < 0.1) {
-                            const extras = new Extras(this.x + wExtras, this.y);
-                            extrases.push(extras)
+                            const extras = new Extras(this.x, this.y, '+3', '#5e4fa2');
+                            extrases.push(extras);
+                        }
+                        else if (chance < 0.15) {
+                            const extras = new Extras(this.x, this.y, 'x3', '#9e0142');
+                            extrases.push(extras);
                         }
 
 
@@ -222,7 +225,7 @@ class Brick {
         this.draw = function() {
             ctx.beginPath();
             ctx.rect(this.x, this.y, this.w, this.h);
-            ctx.fillStyle = '#B42B51';
+            ctx.fillStyle = '#3288bd';
             ctx.fill();
             ctx.strokeStyle = 'rgba(209, 209, 209, 1)';
             ctx.lineWidth = 2;
@@ -238,12 +241,14 @@ class Brick {
 }
 
 class Extras{
-    constructor(x, y) {
+    constructor(x, y, type, color) {
         this.x = x;
         this.y = y
         this.w = wExtras;
         this.h = hExtras;
         this.dy = extrasVelocity;
+        this.type = type;
+        this.color = color;
 
         this.draw = function() {
             ctx.beginPath();
@@ -251,8 +256,11 @@ class Extras{
             ctx.lineTo(this.x + this.w, this.y);
             ctx.lineWidth = this.h;
             ctx.lineCap = 'round';
-            ctx.strokeStyle = 'blue';
+            ctx.strokeStyle = this.color;
             ctx.stroke();
+            ctx.font = "12px sans-serif";
+            ctx.fillStyle = '#eee'
+            ctx.fillText(this.type, this.x, this.y + 4); 
             ctx.closePath();
         }
 
@@ -267,14 +275,26 @@ class Extras{
                 else if (extrases[i].y + extrases[i].dy + extrases[i].h / 2 >= paddle.y &&
                     extrases[i].x + extrases[i].w + extrases[i].h / 2 >= paddle.x &&
                     extrases[i].x - extrases[i].h <= paddle.x + paddle.w) {
-                        for (let i = 0; i < 3; i++){
-                            const newBall = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall, true);
-                            const newAngle = randomIntFromRange(220, 320)
-                            newBall.dx = Math.cos(newAngle * (Math.PI / 180)) * ballVelocity;
-                            newBall.dy = Math.sin(newAngle * (Math.PI / 180)) * ballVelocity;
-                            balls.push(newBall); 
+                        if (extrases[i].type === '+3'){
+                            for (let i = 0; i < 3; i++){
+                                const newBall = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall, true);
+                                const newAngle = randomIntFromRange(220, 320)
+                                newBall.dx = Math.cos(newAngle * (Math.PI / 180)) * ballVelocity;
+                                newBall.dy = Math.sin(newAngle * (Math.PI / 180)) * ballVelocity;
+                                balls.push(newBall); 
+                            }
                         }
-                                               
+                        if (extrases[i].type === 'x3'){
+                            balls.forEach(ball => {
+                                for (let i = 0; i < 2; i++){
+                                    const newBall = new Ball(ball.x, ball.y, ballVelocity, radiusBall, true);
+                                    const newAngle = randomIntFromRange(220, 320)
+                                    newBall.dx = Math.cos(newAngle * (Math.PI / 180)) * ballVelocity;
+                                    newBall.dy = Math.sin(newAngle * (Math.PI / 180)) * ballVelocity;
+                                    balls.push(newBall); 
+                                }
+                            })
+                        }
                         extrases.splice(i, 1);
                 }
             }
