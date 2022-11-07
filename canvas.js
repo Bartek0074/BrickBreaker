@@ -29,6 +29,9 @@ const ballColor = '#FC9918';
 
 const wExtras = 15;
 const hExtras = 20;
+const xExtrasColor = '#F32424';
+const wExtrasColor = '#D800A6';
+
 const ballVelocity = 7.5;
 const extrasVelocity = 3;
 let isGameStarted = false;
@@ -208,13 +211,16 @@ class Ball {
                             if (bricks[i].lives === 0) {
                                 bricks.splice(i, 1);
                                 if (chance < 0.05) {
-                                    const extras = new Extras(this.x, this.y, '+3', '#5e4fa2');
+                                    const extras = new Extras(this.x, this.y, '+3', wExtrasColor);
                                     extrases.push(extras);
                                 }
                                 else if (chance < 0.075 && balls.length <= 250 && extrases.length <=5) {
-                                    const extras = new Extras(this.x, this.y, 'x3', '#9e0142');
+                                    const extras = new Extras(this.x, this.y, 'x3', xExtrasColor);
                                     extrases.push(extras);
                                 }
+                            }
+                            else if (bricks[i].lives === 1) {
+                                bricks[i].color += '88';
                             }
                         }
                         else if (this.y >= bricks[i].y && this.y <= bricks[i].y + bricks[i].h) {
@@ -222,15 +228,19 @@ class Ball {
                             bricks[i].lives--;
                             if (bricks[i].lives === 0) {
                                 bricks.splice(i, 1);
-                                if (chance < 0.05) {
-                                    const extras = new Extras(this.x, this.y, '+3', '#5e4fa2');
+                                if (chance < 0.66) {
+                                    const extras = new Extras(this.x, this.y, '+3', wExtrasColor);
                                     extrases.push(extras);
                                 }
-                                else if (chance < 0.075 && balls.length <= 250 && extrases.length <=5) {
-                                    const extras = new Extras(this.x, this.y, 'x3', '#9e0142');
+                                else if (chance < 0.1 && balls.length <= 250 && extrases.length <=5) {
+                                    const extras = new Extras(this.x, this.y, 'x3', xExtrasColor);
                                     extrases.push(extras);
                                 }
-                            }                        }
+                            }
+                            else if (bricks[i].lives === 1) {
+                                bricks[i].color += '88';
+                            }                        
+                        }
                     }
                 }
                 
@@ -311,7 +321,7 @@ class Extras{
             ctx.lineCap = 'round';
             ctx.strokeStyle = this.color;
             ctx.stroke();
-            ctx.font = "12px sans-serif";
+            ctx.font = "12px Tahoma";
             ctx.fillStyle = '#EEE'
             ctx.fillText(this.type, this.x, this.y + 4); 
             ctx.closePath();
