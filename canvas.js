@@ -6,9 +6,9 @@ const ctx = canvas.getContext('2d');
 const livesText = document.querySelector('.lives')
 const levelText = document.querySelector('.level')
 
-canvas.width = 800;
+canvas.width = 650;
 const canvasWidth = canvas.width;
-canvas.height = 550;
+canvas.height = 500;
 
 // Variables
 let lives = 3;
@@ -22,7 +22,11 @@ let keys = {
 const wPaddle = 100;
 const hPaddle = 5;
 const paddleVelocity = 8;
-const radiusBall = 3.5;
+const paddleColor = '#F14A16CC';
+
+const radiusBall = 4.5;
+const ballColor = '#FC9918';
+
 const wExtras = 15;
 const hExtras = 20;
 const ballVelocity = 7.5;
@@ -48,7 +52,7 @@ function updateInfoGame() {
 }
 
 function initInstruction() {
-    ctx.fillStyle = "#003300";
+    ctx.fillStyle = "#FAEDF0";
     ctx.font = "24px Gill Sans";
     const textString = "SPACEBAR - SET BALL IN MOVEMENT",
     textWidth = ctx.measureText(textString ).width; 
@@ -68,7 +72,7 @@ function initInstruction() {
 }
 
 function initLoseText() {
-    ctx.fillStyle = "#003300";
+    ctx.fillStyle = "#FAEDF0";
     ctx.font = "24px Gill Sans";
     const textString = "YOU LOSE!",
     textWidth = ctx.measureText(textString ).width; 
@@ -80,7 +84,7 @@ function initLoseText() {
 }
 
 function initWonText() {
-    ctx.fillStyle = "#003300";
+    ctx.fillStyle = "#FAEDF0";
     ctx.font = "24px Gill Sans";
     const textString = "CONGRATULATIONS!!!",
     textWidth = ctx.measureText(textString ).width; 
@@ -92,7 +96,7 @@ function initWonText() {
 }
 
 function initLevelUpText() {
-    ctx.fillStyle = "#003300";
+    ctx.fillStyle = "#FAEDF0";
     ctx.font = "24px Gill Sans";
     const textString = "LEVEL UP!",
     textWidth = ctx.measureText(textString ).width; 
@@ -119,7 +123,7 @@ class Paddle {
         this.draw = function() {
             ctx.beginPath();
             ctx.rect(this.x, this.y, this.w, this.h);
-            ctx.fillStyle = '#66c2a5';
+            ctx.fillStyle = paddleColor;
             ctx.fill();
             ctx.closePath();
         }
@@ -153,7 +157,7 @@ class Ball {
         this.draw = function() {
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-            ctx.fillStyle = '#f46d43';
+            ctx.fillStyle = ballColor;
             ctx.fill();
             ctx.closePath();
         }
@@ -196,11 +200,11 @@ class Ball {
                         // chance of dropping extras
                         const chance = Math.random()
 
-                        if (chance < 0.025) {
+                        if (chance < 0.05) {
                             const extras = new Extras(this.x, this.y, '+3', '#5e4fa2');
                             extrases.push(extras);
                         }
-                        else if (chance < 0.0375 && balls.length <= 250 && extrases.length <=5) {
+                        else if (chance < 0.075 && balls.length <= 250 && extrases.length <=5) {
                             const extras = new Extras(this.x, this.y, 'x3', '#9e0142');
                             extrases.push(extras);
                         }
@@ -250,18 +254,19 @@ class Ball {
 }
 
 class Brick {
-    constructor(x, y, w, h) {
+    constructor(x, y, w, h, color) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
+        this.color = color
 
         this.draw = function() {
             ctx.beginPath();
             ctx.rect(this.x, this.y, this.w, this.h);
-            ctx.fillStyle = '#3288bd';
+            ctx.fillStyle = this.color;
             ctx.fill();
-            ctx.strokeStyle = 'rgba(209, 209, 209, 1)';
+            ctx.strokeStyle = '#142F43';
             ctx.lineWidth = 2;
             ctx.stroke();
             ctx.closePath();
@@ -293,7 +298,7 @@ class Extras{
             ctx.strokeStyle = this.color;
             ctx.stroke();
             ctx.font = "12px sans-serif";
-            ctx.fillStyle = '#eee'
+            ctx.fillStyle = '#EEE'
             ctx.fillText(this.type, this.x, this.y + 4); 
             ctx.closePath();
         }
@@ -373,7 +378,8 @@ let req;
 function animate() {
     if (lives !== 0 && bricks.length !== 0) {
         req = requestAnimationFrame(animate);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(20, 47, 67, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         paddle.update();
         balls.forEach(ball => {
             ball.update();

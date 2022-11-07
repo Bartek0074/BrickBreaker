@@ -24,22 +24,24 @@ body {
     display: flex;
     padding: .5em 0;
     justify-content: space-between;
-    width: 810px;
-    background-color: rgb(209, 209, 209);
-    border: 5px solid #3d3d3d;
+    width: 660px;
+    background-color: #142f43;
+    border: 5px solid #F14A1699;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
     border-bottom: none;
 }
 
 .info-bar p {
     margin: .5em .75em;
     font-size: 2.4rem;
-    color: #111;
+    color: #FAEDF0;
 }
 
 canvas {
     position: relative;
     z-index: 0;
-    background-color: rgb(209, 209, 209);
-    border: 5px solid #3d3d3d;
+    background-color: #142F43;
+    border: 5px solid #F14A1699;
     border-bottom: none;
 }
