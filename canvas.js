@@ -202,24 +202,35 @@ class Ball {
                         // chance of dropping extras
                         const chance = Math.random()
 
-                        if (chance < 0.05) {
-                            const extras = new Extras(this.x, this.y, '+3', '#5e4fa2');
-                            extrases.push(extras);
-                        }
-                        else if (chance < 0.75 && balls.length <= 250 && extrases.length <=5) {
-                            const extras = new Extras(this.x, this.y, 'x3', '#9e0142');
-                            extrases.push(extras);
-                        }
-
-                        
                         if (this.x >= bricks[i].x && this.x <= bricks[i].x + bricks[i].w) {
                             this.dy = -this.dy;
-                            bricks.splice(i, 1);
+                            bricks[i].lives--;
+                            if (bricks[i].lives === 0) {
+                                bricks.splice(i, 1);
+                                if (chance < 0.05) {
+                                    const extras = new Extras(this.x, this.y, '+3', '#5e4fa2');
+                                    extrases.push(extras);
+                                }
+                                else if (chance < 0.075 && balls.length <= 250 && extrases.length <=5) {
+                                    const extras = new Extras(this.x, this.y, 'x3', '#9e0142');
+                                    extrases.push(extras);
+                                }
+                            }
                         }
                         else if (this.y >= bricks[i].y && this.y <= bricks[i].y + bricks[i].h) {
                             this.dx = -this.dx;
-                            bricks.splice(i, 1);
-                        }
+                            bricks[i].lives--;
+                            if (bricks[i].lives === 0) {
+                                bricks.splice(i, 1);
+                                if (chance < 0.05) {
+                                    const extras = new Extras(this.x, this.y, '+3', '#5e4fa2');
+                                    extrases.push(extras);
+                                }
+                                else if (chance < 0.075 && balls.length <= 250 && extrases.length <=5) {
+                                    const extras = new Extras(this.x, this.y, 'x3', '#9e0142');
+                                    extrases.push(extras);
+                                }
+                            }                        }
                     }
                 }
                 
@@ -256,12 +267,13 @@ class Ball {
 }
 
 class Brick {
-    constructor(x, y, w, h, color) {
+    constructor(x, y, w, h, color, lives) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
-        this.color = color
+        this.color = color;
+        this.lives = lives;
 
         this.draw = function() {
             ctx.beginPath();

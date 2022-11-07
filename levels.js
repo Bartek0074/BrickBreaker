@@ -12,7 +12,7 @@ const levels = [
         for (let i = 0; i < columns; i++){
             for (let j = 0; j < rows; j++){
                 if (j%2 != 1 && i !== 5){
-                    const brick = new Brick(gap + i * bricsLineWidth / columns, j * hBrick + gap, bricsLineWidth/columns, hBrick, color);
+                    const brick = new Brick(gap + i * bricsLineWidth / columns, j * hBrick + gap, bricsLineWidth/columns, hBrick, color, 1);
                     bricks.push(brick);
                 }
             }
@@ -25,7 +25,7 @@ const levels = [
         for (let i = 0; i < columns; i++){
             for (let j = 0; j < rows; j++){
                 if (j%2 != 1){
-                    const brick = new Brick(gap + i * bricsLineWidth / columns, j * hBrick + gap, bricsLineWidth/columns, hBrick, color);
+                    const brick = new Brick(gap + i * bricsLineWidth / columns, j * hBrick + gap, bricsLineWidth/columns, hBrick, color, 1);
                     bricks.push(brick);
                 }
             }
