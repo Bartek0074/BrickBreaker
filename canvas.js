@@ -53,7 +53,7 @@ function updateInfoGame() {
 
 function initInstruction() {
     ctx.fillStyle = "#FAEDF0";
-    ctx.font = "24px Gill Sans";
+    ctx.font = "26px Gill Sans";
     const textString = "SPACEBAR - SET BALL IN MOVEMENT",
     textWidth = ctx.measureText(textString ).width; 
     ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/5);
@@ -73,38 +73,40 @@ function initInstruction() {
 
 function initLoseText() {
     ctx.fillStyle = "#FAEDF0";
-    ctx.font = "24px Gill Sans";
+    ctx.font = "36px Gill Sans";
     const textString = "YOU LOSE!",
     textWidth = ctx.measureText(textString ).width; 
-    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2 - 30);
+    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height / 3);
 
+    ctx.font = "32px Gill Sans";
     const textString2 = "CLICK ENTER TO PLAY AGAIN",
     textWidth2 = ctx.measureText(textString2).width; 
-    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), canvas.height/2 + 30);
+    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2) / 3);
 }
 
 function initWonText() {
     ctx.fillStyle = "#FAEDF0";
-    ctx.font = "24px Gill Sans";
+    ctx.font = "36px Gill Sans";
     const textString = "CONGRATULATIONS!!!",
     textWidth = ctx.measureText(textString ).width; 
-    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2 - 30);
+    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/3);
 
     const textString2 = "YOU WON!!!",
     textWidth2 = ctx.measureText(textString2).width; 
-    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), canvas.height/2 + 30);
+    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2) / 3);
 }
 
 function initLevelUpText() {
     ctx.fillStyle = "#FAEDF0";
-    ctx.font = "24px Gill Sans";
+    ctx.font = "36px Gill Sans";
     const textString = "LEVEL UP!",
     textWidth = ctx.measureText(textString ).width; 
-    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2 - 30);
-
+    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/3);
+    
+    ctx.font = "32px Gill Sans";
     const textString2 = "CLICK ENTER TO CONTINUE",
     textWidth2 = ctx.measureText(textString2).width; 
-    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), canvas.height/2 + 30);
+    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2) / 3);
 }
 
 function initLevel(lvl) {
@@ -204,7 +206,7 @@ class Ball {
                             const extras = new Extras(this.x, this.y, '+3', '#5e4fa2');
                             extrases.push(extras);
                         }
-                        else if (chance < 0.075 && balls.length <= 250 && extrases.length <=5) {
+                        else if (chance < 0.75 && balls.length <= 250 && extrases.length <=5) {
                             const extras = new Extras(this.x, this.y, 'x3', '#9e0142');
                             extrases.push(extras);
                         }
