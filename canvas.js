@@ -1,3 +1,4 @@
+import { levels } from './levels.js'
 // Initial setup
 const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
@@ -42,7 +43,7 @@ function controlPaddle() {
 
 function updateInfoGame() {
     livesText.textContent = `LIVES: ${lives}`;
-    levelText.textContent = `LEVEL: ${level}`;
+    levelText.textContent = `LEVEL: ${level}/${levels.length}`;
 }
 
 function initInstruction() {
@@ -77,6 +78,18 @@ function initLoseText() {
     ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), canvas.height/2 + 30);
 }
 
+function initWonText() {
+    ctx.fillStyle = "#003300";
+    ctx.font = "24px Gill Sans";
+    const textString = "CONGRATULATIONS!!!",
+    textWidth = ctx.measureText(textString ).width; 
+    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2 - 30);
+
+    const textString2 = "YOU WON!!!",
+    textWidth2 = ctx.measureText(textString2).width; 
+    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), canvas.height/2 + 30);
+}
+
 function initLevelUpText() {
     ctx.fillStyle = "#003300";
     ctx.font = "24px Gill Sans";
@@ -87,6 +100,23 @@ function initLevelUpText() {
     const textString2 = "CLICK ENTER TO PLAY AGAIN",
     textWidth2 = ctx.measureText(textString2).width; 
     ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), canvas.height/2 + 30);
+}
+
+function initLevel(lvl) {
+    const gap = 25;
+    const hBrick = 20;
+    const rows = 8;
+    const columns = 12;
+    const bricsLineWidth = canvas.width - gap * 2;
+
+    for (let i = 0; i < columns; i++){
+        for (let j = 0; j < rows; j++){
+            const brick = new Brick(gap + i * bricsLineWidth / columns, j * hBrick + gap, bricsLineWidth/columns, hBrick);
+            bricks.push(brick);
+        }
+    }
+    
+    console.log(level, levels.length)
 }
 
 // Classes
@@ -347,17 +377,7 @@ function init() {
     const ball = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall, false);
     balls.push(ball);
  
-    const gap = 25;
-    const hBrick = 20;
-    const rows = 8;
-    const columns = 12;
-    const bricsLineWidth = canvas.width - gap * 2;
-    for (let i = 0; i < columns; i++){
-        for (let j = 0; j < rows; j++){
-            const brick = new Brick(gap + i * bricsLineWidth / columns, j * hBrick + gap, bricsLineWidth/columns, hBrick);
-            bricks.push(brick);
-        }
-    }
+    initLevel();
 }
 
 // Animation loop
@@ -383,6 +403,7 @@ function animate() {
     else {
         stopGame();
         isLose = true;
+        level = 1;
     }
 }
 
@@ -431,10 +452,18 @@ function stopGame() {
 }
 
 function levelUp() {
-    level++;
-    isGameStarted = false;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    initLevelUpText();
+    if (level >= levels.length) {
+        console.log('you won the game');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        initWonText();
+    }
+    else {
+        level++;
+        isGameStarted = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        initLevelUpText();
+    }
 }
 
 initInstruction();
+updateInfoGame();
