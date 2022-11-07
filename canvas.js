@@ -6,8 +6,9 @@ const ctx = canvas.getContext('2d');
 const livesText = document.querySelector('.lives')
 const levelText = document.querySelector('.level')
 
-canvas.width = 650;
-canvas.height = 500;
+canvas.width = 800;
+const canvasWidth = canvas.width;
+canvas.height = 550;
 
 // Variables
 let lives = 3;
@@ -18,10 +19,10 @@ let keys = {
     arrowRight: false
 }
 
-const wPaddle = 80;
+const wPaddle = 100;
 const hPaddle = 5;
-const paddleVelocity = 7.5;
-const radiusBall = 5;
+const paddleVelocity = 8;
+const radiusBall = 3.5;
 const wExtras = 15;
 const hExtras = 20;
 const ballVelocity = 7.5;
@@ -97,26 +98,13 @@ function initLevelUpText() {
     textWidth = ctx.measureText(textString ).width; 
     ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2 - 30);
 
-    const textString2 = "CLICK ENTER TO PLAY AGAIN",
+    const textString2 = "CLICK ENTER TO CONTINUE",
     textWidth2 = ctx.measureText(textString2).width; 
     ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), canvas.height/2 + 30);
 }
 
 function initLevel(lvl) {
-    const gap = 25;
-    const hBrick = 20;
-    const rows = 8;
-    const columns = 12;
-    const bricsLineWidth = canvas.width - gap * 2;
-
-    for (let i = 0; i < columns; i++){
-        for (let j = 0; j < rows; j++){
-            const brick = new Brick(gap + i * bricsLineWidth / columns, j * hBrick + gap, bricsLineWidth/columns, hBrick);
-            bricks.push(brick);
-        }
-    }
-    
-    console.log(level, levels.length)
+    levels[lvl - 1].init();
 }
 
 // Classes
@@ -208,11 +196,11 @@ class Ball {
                         // chance of dropping extras
                         const chance = Math.random()
 
-                        if (chance < 0.065) {
+                        if (chance < 0.025) {
                             const extras = new Extras(this.x, this.y, '+3', '#5e4fa2');
                             extrases.push(extras);
                         }
-                        else if (chance < 0.1) {
+                        else if (chance < 0.0375 && balls.length <= 250 && extrases.length <=5) {
                             const extras = new Extras(this.x, this.y, 'x3', '#9e0142');
                             extrases.push(extras);
                         }
@@ -377,7 +365,7 @@ function init() {
     const ball = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall, false);
     balls.push(ball);
  
-    initLevel();
+    initLevel(level);
 }
 
 // Animation loop
@@ -453,7 +441,6 @@ function stopGame() {
 
 function levelUp() {
     if (level >= levels.length) {
-        console.log('you won the game');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         initWonText();
     }
@@ -467,3 +454,5 @@ function levelUp() {
 
 initInstruction();
 updateInfoGame();
+
+export { bricks, Brick, canvasWidth };
