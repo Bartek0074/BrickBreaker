@@ -3,12 +3,14 @@ const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 
 const livesText = document.querySelector('.lives')
+const levelText = document.querySelector('.level')
 
 canvas.width = 650;
 canvas.height = 500;
 
 // Variables
 let lives = 3;
+let level = 1;
 
 let keys = {
     arrowLeft: false,
@@ -25,6 +27,7 @@ const ballVelocity = 7.5;
 const extrasVelocity = 3;
 let isGameStarted = false;
 let isGamePaused = false;
+let isLose = false;
 
 // Utility functions
 function randomIntFromRange(min, max) {
@@ -39,6 +42,7 @@ function controlPaddle() {
 
 function updateInfoGame() {
     livesText.textContent = `LIVES: ${lives}`;
+    levelText.textContent = `LEVEL: ${level}`;
 }
 
 function initInstruction() {
@@ -65,6 +69,18 @@ function initLoseText() {
     ctx.fillStyle = "#003300";
     ctx.font = "24px Gill Sans";
     const textString = "YOU LOSE!",
+    textWidth = ctx.measureText(textString ).width; 
+    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2 - 30);
+
+    const textString2 = "CLICK ENTER TO PLAY AGAIN",
+    textWidth2 = ctx.measureText(textString2).width; 
+    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), canvas.height/2 + 30);
+}
+
+function initLevelUpText() {
+    ctx.fillStyle = "#003300";
+    ctx.font = "24px Gill Sans";
+    const textString = "LEVEL UP!",
     textWidth = ctx.measureText(textString ).width; 
     ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/2 - 30);
 
@@ -162,16 +178,16 @@ class Ball {
                         // chance of dropping extras
                         const chance = Math.random()
 
-                        if (chance < 0.1) {
+                        if (chance < 0.065) {
                             const extras = new Extras(this.x, this.y, '+3', '#5e4fa2');
                             extrases.push(extras);
                         }
-                        else if (chance < 0.15) {
+                        else if (chance < 0.1) {
                             const extras = new Extras(this.x, this.y, 'x3', '#9e0142');
                             extrases.push(extras);
                         }
 
-
+                        
                         if (this.x >= bricks[i].x && this.x <= bricks[i].x + bricks[i].w) {
                             this.dy = -this.dy;
                             bricks.splice(i, 1);
@@ -347,7 +363,7 @@ function init() {
 // Animation loop
 let req;
 function animate() {
-    if (lives !== 0) {
+    if (lives !== 0 && bricks.length !== 0) {
         req = requestAnimationFrame(animate);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         paddle.update();
@@ -361,8 +377,12 @@ function animate() {
             extras.update();
         })
     }
+    else if (lives !== 0 && bricks.length === 0) {
+        levelUp();
+    }
     else {
         stopGame();
+        isLose = true;
     }
 }
 
@@ -387,7 +407,7 @@ window.addEventListener('keyup', e => {
 // Start, stop game function
 
 function startGame() {
-    lives = 3;
+    if (isLose) lives = 3;
     updateInfoGame();
     isGameStarted = true;
     init();
@@ -408,6 +428,13 @@ function stopGame() {
     isGameStarted = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     initLoseText();
+}
+
+function levelUp() {
+    level++;
+    isGameStarted = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    initLevelUpText();
 }
 
 initInstruction();
