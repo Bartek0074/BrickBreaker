@@ -1,4 +1,4 @@
-import { bricks, Brick, canvasWidth } from './canvas.js'
+import { bricks, Brick } from './canvas.js'
 
 const hBrick = 20;
 const columns = 11;
@@ -7,7 +7,7 @@ const gap = 25;
 const levels = [
     {init: function() {
         const rows = 9;
-        const bricsLineWidth = canvasWidth - gap * 2;
+        const bricsLineWidth = canvas.width - gap * 2;
         const color = '#B2B1B9';
         for (let i = 0; i < columns; i++){
             for (let j = 0; j < rows; j++){
@@ -20,7 +20,7 @@ const levels = [
     }},
     {init: function() {
         const rows = 9;
-        const bricsLineWidth = canvasWidth - gap * 2;
+        const bricsLineWidth = canvas.width - gap * 2;
         const color = '#B2B1B9';
         let k = 0;
         for (let i = 0; i < columns; i++){
@@ -36,7 +36,7 @@ const levels = [
     }},
     {init: function() {
         const rows = 6;
-        const bricsLineWidth = canvasWidth - gap * 2;
+        const bricsLineWidth = canvas.width - gap * 2;
         const color1 = '#B2B1B9';
         const color2 = '#822659';
         for (let i = 0; i < columns; i++){

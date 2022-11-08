@@ -7,7 +7,6 @@ const livesText = document.querySelector('.lives')
 const levelText = document.querySelector('.level')
 
 canvas.width = 650;
-const canvasWidth = canvas.width;
 canvas.height = 500;
 
 // Variables
@@ -19,21 +18,21 @@ let keys = {
     arrowRight: false
 }
 
-const wPaddle = 100;
-const hPaddle = 5;
-const paddleVelocity = 8;
+const paddleWidth = 100;
+const paddleHeight = 5;
+const paddleVelocity = 8.5;
 const paddleColor = '#F14A16CC';
 
-const radiusBall = 4.5;
+const ballRadius = 4.5;
+const ballVelocity = 7.5;
 const ballColor = '#FC9918';
 
-const wExtras = 15;
-const hExtras = 20;
-const xExtrasColor = '#F32424';
-const wExtrasColor = '#D800A6';
-
-const ballVelocity = 7.5;
+const extrasWidth = 15;
+const extrasHeight = 20;
 const extrasVelocity = 3;
+const extrasFirstColor = '#F32424';
+const extrasSecondColor = '#D800A6';
+
 let isGameStarted = false;
 let isGamePaused = false;
 let isLose = false;
@@ -211,11 +210,11 @@ class Ball {
                             if (bricks[i].lives === 0) {
                                 bricks.splice(i, 1);
                                 if (chance < 0.05) {
-                                    const extras = new Extras(this.x, this.y, '+3', wExtrasColor);
+                                    const extras = new Extras(this.x, this.y, '+3', extrasSecondColor);
                                     extrases.push(extras);
                                 }
                                 else if (chance < 0.075 && balls.length <= 250 && extrases.length <=5) {
-                                    const extras = new Extras(this.x, this.y, 'x3', xExtrasColor);
+                                    const extras = new Extras(this.x, this.y, 'x3', extrasFirstColor);
                                     extrases.push(extras);
                                 }
                             }
@@ -229,11 +228,11 @@ class Ball {
                             if (bricks[i].lives === 0) {
                                 bricks.splice(i, 1);
                                 if (chance < 0.66) {
-                                    const extras = new Extras(this.x, this.y, '+3', wExtrasColor);
+                                    const extras = new Extras(this.x, this.y, '+3', extrasSecondColor);
                                     extrases.push(extras);
                                 }
                                 else if (chance < 0.1 && balls.length <= 250 && extrases.length <=5) {
-                                    const extras = new Extras(this.x, this.y, 'x3', xExtrasColor);
+                                    const extras = new Extras(this.x, this.y, 'x3', extrasFirstColor);
                                     extrases.push(extras);
                                 }
                             }
@@ -251,7 +250,7 @@ class Ball {
                         balls.splice(i, 1);
 
                         if (balls.length === 0) {
-                            const ball = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall, false);
+                            const ball = new Ball(paddle.x + paddle.w/2, paddle.y - ballRadius, ballVelocity, ballRadius, false);
                             balls.push(ball);
                             extrases = [];
                             lives--;
@@ -266,7 +265,7 @@ class Ball {
             }
             else {
                 this.x = paddle.x + paddle.w/2;
-                this.y = paddle.y - radiusBall;
+                this.y = paddle.y - ballRadius;
                 this.angle = (this.x / canvas.width) * 180 + 180;
                 if (this.angle === 270) this.angle = 270.1;
                 this.updateVelocity();
@@ -307,8 +306,8 @@ class Extras{
     constructor(x, y, type, color) {
         this.x = x;
         this.y = y
-        this.w = wExtras;
-        this.h = hExtras;
+        this.w = extrasWidth;
+        this.h = extrasHeight;
         this.dy = extrasVelocity;
         this.type = type;
         this.color = color;
@@ -330,7 +329,7 @@ class Extras{
         this.update = function() {
             for (let i = 0; i < extrases.length; i++) {
                 // miss extras
-                if (extrases[i].y + this.dy - hExtras / 2 >= canvas.height) {
+                if (extrases[i].y + this.dy - extrasHeight / 2 >= canvas.height) {
                     extrases.splice(i, 1);
                 }
 
@@ -340,7 +339,7 @@ class Extras{
                     extrases[i].x - extrases[i].h <= paddle.x + paddle.w) {
                         if (extrases[i].type === '+3'){
                             for (let i = 0; i < 3; i++){
-                                const newBall = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall, true);
+                                const newBall = new Ball(paddle.x + paddle.w/2, paddle.y - ballRadius, ballVelocity, ballRadius, true);
                                 const newAngle = randomIntFromRange(220, 320)
                                 newBall.dx = Math.cos(newAngle * (Math.PI / 180)) * ballVelocity;
                                 newBall.dy = Math.sin(newAngle * (Math.PI / 180)) * ballVelocity;
@@ -350,7 +349,7 @@ class Extras{
                         if (extrases[i].type === 'x3'){
                             balls.forEach(ball => {
                                 for (let i = 0; i < 2; i++){
-                                    const newBall = new Ball(ball.x, ball.y, ballVelocity, radiusBall, true);
+                                    const newBall = new Ball(ball.x, ball.y, ballVelocity, ballRadius, true);
                                     const newAngle = randomIntFromRange(220, 320)
                                     newBall.dx = Math.cos(newAngle * (Math.PI / 180)) * ballVelocity;
                                     newBall.dy = Math.sin(newAngle * (Math.PI / 180)) * ballVelocity;
@@ -389,9 +388,9 @@ function init() {
     bricks = [];
     extrases = [];
 
-    paddle = new Paddle(canvas.width/2 - wPaddle/2, canvas.height - hPaddle * 2, wPaddle, hPaddle);
+    paddle = new Paddle(canvas.width/2 - paddleWidth/2, canvas.height - paddleHeight * 2, paddleWidth, paddleHeight);
 
-    const ball = new Ball(paddle.x + paddle.w/2, paddle.y - radiusBall, ballVelocity, radiusBall, false);
+    const ball = new Ball(paddle.x + paddle.w/2, paddle.y - ballRadius, ballVelocity, ballRadius, false);
     balls.push(ball);
  
     initLevel(level);
@@ -485,4 +484,4 @@ function levelUp() {
 initInstruction();
 updateInfoGame();
 
-export { bricks, Brick, canvasWidth };
+export { bricks, Brick };
