@@ -1,13 +1,18 @@
+// Import
 import { levels } from './levels.js'
+
 // Initial setup
 const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 
+canvas.width = 650;
+canvas.height = 500;
+
+
+// Importing DOM elements
 const livesText = document.querySelector('.lives')
 const levelText = document.querySelector('.level')
 
-canvas.width = 650;
-canvas.height = 500;
 
 // Variables
 let lives = 3;
@@ -30,90 +35,19 @@ const ballColor = '#FC9918';
 const extrasWidth = 15;
 const extrasHeight = 20;
 const extrasVelocity = 3;
-const extrasFirstColor = '#F32424';
-const extrasSecondColor = '#D800A6';
+const extrasFirstColor = '#115173';
+const extrasSecondColor = '#6D9886';
 
 let isGameStarted = false;
 let isGamePaused = false;
 let isLose = false;
+
 
 // Utility functions
 function randomIntFromRange(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function controlPaddle() {
-    if (keys.arrowLeft === true && keys.arrowRight === false) paddle.dx = -paddleVelocity;
-    else if (keys.arrowLeft === false && keys.arrowRight === true) paddle.dx = paddleVelocity;
-    else paddle.dx = 0;
-}
-
-function updateInfoGame() {
-    livesText.textContent = `LIVES: ${lives}`;
-    levelText.textContent = `LEVEL: ${level}/${levels.length}`;
-}
-
-function initInstruction() {
-    ctx.fillStyle = "#FAEDF0";
-    ctx.font = "26px Gill Sans";
-    const textString = "SPACEBAR - SET BALL IN MOVEMENT",
-    textWidth = ctx.measureText(textString ).width; 
-    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/5);
-
-    const textString2 = "ARROWS - MOVE PADDLE",
-    textWidth2 = ctx.measureText(textString2).width; 
-    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2)/5);
-    
-    const textString3 = "P - PAUSE THE GAME",
-    textWidth3 = ctx.measureText(textString3).width; 
-    ctx.fillText(textString3 , (canvas.width/2) - (textWidth3 / 2), (canvas.height * 3)/5);
-
-    const textString4 = "ENTER - START THE GAME",
-    textWidth4 = ctx.measureText(textString4).width; 
-    ctx.fillText(textString4 , (canvas.width/2) - (textWidth4 / 2), (canvas.height * 4)/5);
-}
-
-function initLoseText() {
-    ctx.fillStyle = "#FAEDF0";
-    ctx.font = "36px Gill Sans";
-    const textString = "YOU LOSE!",
-    textWidth = ctx.measureText(textString ).width; 
-    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height / 3);
-
-    ctx.font = "32px Gill Sans";
-    const textString2 = "CLICK ENTER TO PLAY AGAIN",
-    textWidth2 = ctx.measureText(textString2).width; 
-    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2) / 3);
-}
-
-function initWonText() {
-    ctx.fillStyle = "#FAEDF0";
-    ctx.font = "36px Gill Sans";
-    const textString = "CONGRATULATIONS!!!",
-    textWidth = ctx.measureText(textString ).width; 
-    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/3);
-
-    const textString2 = "YOU WON!!!",
-    textWidth2 = ctx.measureText(textString2).width; 
-    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2) / 3);
-}
-
-function initLevelUpText() {
-    ctx.fillStyle = "#FAEDF0";
-    ctx.font = "36px Gill Sans";
-    const textString = "LEVEL UP!",
-    textWidth = ctx.measureText(textString ).width; 
-    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/3);
-    
-    ctx.font = "32px Gill Sans";
-    const textString2 = "CLICK ENTER TO CONTINUE",
-    textWidth2 = ctx.measureText(textString2).width; 
-    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2) / 3);
-}
-
-function initLevel(lvl) {
-    levels[lvl - 1].init();
-}
 
 // Classes
 class Paddle {
@@ -133,6 +67,7 @@ class Paddle {
         }
 
         this.update = function() {
+            // setting paddle range
             if (this.x + this.dx >= 0 && this.x + this.w + this.dx < canvas.width) {
                 this.x += this.dx
             }
@@ -147,12 +82,13 @@ class Ball {
         this.y = y;
         this.velocity = velocity;
         this.radius = radius;
+        this.isBallMoved = isBallMoved;
+
         let angle;
         this.dx = Math.cos(this.angle * (Math.PI / 180)) * this.velocity;
         this.dy = Math.sin(this.angle * (Math.PI / 180)) * this.velocity;
 
-        this.isBallMoved = isBallMoved;
-
+        // updating x-axis and y-axis velocities (only angle changes)
         this.updateVelocity = function() {
             this.dx = Math.cos(this.angle * (Math.PI / 180)) * this.velocity;
             this.dy = Math.sin(this.angle * (Math.PI / 180)) * this.velocity;
@@ -167,8 +103,10 @@ class Ball {
         }
 
         this.update = function() {
+            // ball kicked from paddle case
             if (this.isBallMoved){
-                // collision between walls and ball
+
+                // collision between ball and walls
                 if(this.y - this.radius <= 0) {
                     this.dy = -this.dy;
                 }
@@ -176,11 +114,13 @@ class Ball {
                     this.dx = -this.dx;
                 }
 
-                // collision between paddle and ball
+                // collision between ball and paddle
                 if (this.y + this.dy + this.radius > paddle.y && 
                     this.x >= paddle.x &&
                     this.x <= paddle.x + paddle.w) {
                     this.dy = -this.dy;
+                    
+                    // setting new angle dependent on distance between ball and center of paddle
                     let distanceFromCenter = this.x - paddle.x - (paddle.w / 2);
                     if (distanceFromCenter > 0) {
                         this.angle = (distanceFromCenter / (paddle.w / 2) * 60 + 270);
@@ -193,7 +133,7 @@ class Ball {
                     }
                 }
 
-                // collision between bricks and ball
+                // collision between ball and bricks
                 for (let i = 0; i < bricks.length; i++) {
                     const distX = Math.abs(this.x - bricks[i].x - (bricks[i].w / 2));
                     const distY = Math.abs(this.y - bricks[i].y - (bricks[i].h / 2));
@@ -204,38 +144,53 @@ class Ball {
                         // chance of dropping extras
                         const chance = Math.random()
 
+                        // collision on the sides
                         if (this.x >= bricks[i].x && this.x <= bricks[i].x + bricks[i].w) {
                             this.dy = -this.dy;
+                            // reducing brick live
                             bricks[i].lives--;
+
+                            // checking if brick is destroyed, then removing brick from array and
+                            // checking chances of pushing extras
                             if (bricks[i].lives === 0) {
                                 bricks.splice(i, 1);
-                                if (chance < 0.05) {
+                                if (chance < 0.6) {
                                     const extras = new Extras(this.x, this.y, '+3', extrasSecondColor);
                                     extrases.push(extras);
                                 }
-                                else if (chance < 0.075 && balls.length <= 250 && extrases.length <=5) {
+                                else if (chance < 0.9 && balls.length <= 250 && extrases.length <=5) {
                                     const extras = new Extras(this.x, this.y, 'x3', extrasFirstColor);
                                     extrases.push(extras);
                                 }
                             }
+
+                            // changing alpha of brick
                             else if (bricks[i].lives === 1) {
                                 bricks[i].color += '88';
                             }
                         }
+
+                        // collision on top or bottom
                         else if (this.y >= bricks[i].y && this.y <= bricks[i].y + bricks[i].h) {
                             this.dx = -this.dx;
+                            // reducing brick live
                             bricks[i].lives--;
+
+                            // checking if brick is destroyed, then removing brick from array and
+                            // checking chances of pushing extras                            
                             if (bricks[i].lives === 0) {
                                 bricks.splice(i, 1);
-                                if (chance < 0.66) {
+                                if (chance < 0.06) {
                                     const extras = new Extras(this.x, this.y, '+3', extrasSecondColor);
                                     extrases.push(extras);
                                 }
-                                else if (chance < 0.1 && balls.length <= 250 && extrases.length <=5) {
+                                else if (chance < 0.09 && balls.length <= 250 && extrases.length <=5) {
                                     const extras = new Extras(this.x, this.y, 'x3', extrasFirstColor);
                                     extrases.push(extras);
                                 }
                             }
+
+                            // changing alpha of brick
                             else if (bricks[i].lives === 1) {
                                 bricks[i].color += '88';
                             }                        
@@ -243,7 +198,7 @@ class Ball {
                     }
                 }
                 
-                // collision between wall and ball
+                // collision between ball and wall
                 for (let i = 0; i < wallElements.length; i++) {
                     const distX = Math.abs(this.x - wallElements[i].x - (wallElements[i].w / 2));
                     const distY = Math.abs(this.y - wallElements[i].y - (wallElements[i].h / 2));
@@ -263,8 +218,10 @@ class Ball {
                 // miss ball
                 for (let i = 0; i < balls.length; i++) {
                     if(balls[i].y - balls[i].radius >= canvas.height) {
+                        // removing ball from array
                         balls.splice(i, 1);
 
+                        // lose live case
                         if (balls.length === 0) {
                             const ball = new Ball(paddle.x + paddle.w/2, paddle.y - ballRadius, ballVelocity, ballRadius, false);
                             balls.push(ball);
@@ -276,9 +233,12 @@ class Ball {
                     
                 }
 
+                // updating position
                 this.y += this.dy;
                 this.x += this.dx;
             }
+
+            // ball sticked to the paddle case
             else {
                 this.x = paddle.x + paddle.w/2;
                 this.y = paddle.y - ballRadius;
@@ -286,6 +246,7 @@ class Ball {
                 if (this.angle === 270) this.angle = 270.1;
                 this.updateVelocity();
             }
+
             this.draw();
         }
     }
@@ -369,15 +330,17 @@ class Extras{
 
         this.update = function() {
             for (let i = 0; i < extrases.length; i++) {
-                // miss extras
+                // miss extras case
                 if (extrases[i].y + this.dy - extrasHeight / 2 >= canvas.height) {
+                    // removing extras from array
                     extrases.splice(i, 1);
                 }
 
-                // collect extras
+                // collect extras case
                 else if (extrases[i].y + extrases[i].dy + extrases[i].h / 2 >= paddle.y &&
                     extrases[i].x + extrases[i].w + extrases[i].h / 2 >= paddle.x &&
                     extrases[i].x - extrases[i].h <= paddle.x + paddle.w) {
+                        // extras that adds 3 more balls from the paddle
                         if (extrases[i].type === '+3'){
                             for (let i = 0; i < 3; i++){
                                 const newBall = new Ball(paddle.x + paddle.w/2, paddle.y - ballRadius, ballVelocity, ballRadius, true);
@@ -387,6 +350,7 @@ class Extras{
                                 balls.push(newBall); 
                             }
                         }
+                        // extras that multiplies every ball by 3
                         if (extrases[i].type === 'x3'){
                             balls.forEach(ball => {
                                 for (let i = 0; i < 2; i++){
@@ -398,6 +362,7 @@ class Extras{
                                 }
                             })
                         }
+                        // removing extras from array
                         extrases.splice(i, 1);
                 }
             }
@@ -461,26 +426,82 @@ function animate() {
     }
 }
 
-// Event listeners
-window.addEventListener('keydown', e => {
-    if (e.code === 'ArrowLeft' && isGameStarted === true) keys.arrowLeft = true;
-    if (e.code === 'ArrowRight' && isGameStarted === true) keys.arrowRight = true;
-    if (e.code  === 'Space' && isGameStarted === true) balls[0].isBallMoved = true;
-    if (e.code  === 'Enter' && isGameStarted === false) startGame();
-    if (e.code  === 'KeyP' && isGameStarted === true && isGamePaused === false) pauseGame();
-    else if (e.code  === 'KeyP' && isGameStarted === true && isGamePaused === true) resumeGame();
+
+// Game functions
+function controlPaddle() {
+    if (keys.arrowLeft === true && keys.arrowRight === false) paddle.dx = -paddleVelocity;
+    else if (keys.arrowLeft === false && keys.arrowRight === true) paddle.dx = paddleVelocity;
+    else paddle.dx = 0;
+}
+
+function updateInfoGame() {
+    livesText.textContent = `LIVES: ${lives}`;
+    levelText.textContent = `LEVEL: ${level}/${levels.length}`;
+}
+
+function initInstruction() {
+    ctx.fillStyle = "#FAEDF0";
+    ctx.font = "26px Gill Sans";
+    const textString = "SPACEBAR - SET BALL IN MOVEMENT",
+    textWidth = ctx.measureText(textString ).width; 
+    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/5);
+
+    const textString2 = "ARROWS - MOVE PADDLE",
+    textWidth2 = ctx.measureText(textString2).width; 
+    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2)/5);
     
-    if (isGameStarted === true) controlPaddle();
-})
+    const textString3 = "P - PAUSE THE GAME",
+    textWidth3 = ctx.measureText(textString3).width; 
+    ctx.fillText(textString3 , (canvas.width/2) - (textWidth3 / 2), (canvas.height * 3)/5);
 
-window.addEventListener('keyup', e => {
-    if (e.code === 'ArrowLeft' && isGameStarted === true) keys.arrowLeft = false;
-    if (e.code === 'ArrowRight' && isGameStarted === true) keys.arrowRight = false;
+    const textString4 = "ENTER - START THE GAME",
+    textWidth4 = ctx.measureText(textString4).width; 
+    ctx.fillText(textString4 , (canvas.width/2) - (textWidth4 / 2), (canvas.height * 4)/5);
+}
 
-    if (isGameStarted === true) controlPaddle();
-})
+function initLoseText() {
+    ctx.fillStyle = "#FAEDF0";
+    ctx.font = "36px Gill Sans";
+    const textString = "YOU LOSE!",
+    textWidth = ctx.measureText(textString ).width; 
+    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height / 3);
 
-// Start, stop game function
+    ctx.font = "32px Gill Sans";
+    const textString2 = "CLICK ENTER TO PLAY AGAIN",
+    textWidth2 = ctx.measureText(textString2).width; 
+    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2) / 3);
+}
+
+function initWonText() {
+    ctx.fillStyle = "#FAEDF0";
+    ctx.font = "36px Gill Sans";
+    const textString = "CONGRATULATIONS!!!",
+    textWidth = ctx.measureText(textString ).width; 
+    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/3);
+
+    const textString2 = "YOU WON!!!",
+    textWidth2 = ctx.measureText(textString2).width; 
+    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2) / 3);
+}
+
+function initLevelUpText() {
+    ctx.fillStyle = "#FAEDF0";
+    ctx.font = "36px Gill Sans";
+    const textString = "LEVEL UP!",
+    textWidth = ctx.measureText(textString ).width; 
+    ctx.fillText(textString , (canvas.width/2) - (textWidth / 2), canvas.height/3);
+    
+    ctx.font = "32px Gill Sans";
+    const textString2 = "CLICK ENTER TO CONTINUE",
+    textWidth2 = ctx.measureText(textString2).width; 
+    ctx.fillText(textString2 , (canvas.width/2) - (textWidth2 / 2), (canvas.height * 2) / 3);
+}
+
+function initLevel(lvl) {
+    levels[lvl - 1].init();
+}
+
+// Start, pause, stop, levelUp functions
 
 function startGame() {
     if (isLose) lives = 3;
@@ -517,9 +538,35 @@ function levelUp() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         initLevelUpText();
     }
+    keys.arrowLeft = false;
+    keys.arrowRight = false;
 }
 
+
+// Function calls
 initInstruction();
 updateInfoGame();
 
+
+// Event listeners
+window.addEventListener('keydown', e => {
+    if (e.code === 'ArrowLeft' && isGameStarted === true) keys.arrowLeft = true;
+    if (e.code === 'ArrowRight' && isGameStarted === true) keys.arrowRight = true;
+    if (e.code  === 'Space' && isGameStarted === true) balls[0].isBallMoved = true;
+    if (e.code  === 'Enter' && isGameStarted === false) startGame();
+    if (e.code  === 'KeyP' && isGameStarted === true && isGamePaused === false) pauseGame();
+    else if (e.code  === 'KeyP' && isGameStarted === true && isGamePaused === true) resumeGame();
+    
+    if (isGameStarted === true) controlPaddle();
+})
+
+window.addEventListener('keyup', e => {
+    if (e.code === 'ArrowLeft' && isGameStarted === true) keys.arrowLeft = false;
+    if (e.code === 'ArrowRight' && isGameStarted === true) keys.arrowRight = false;
+
+    if (isGameStarted === true) controlPaddle();
+})
+
+
+// Export
 export { bricks, Brick, wallElements, WallElement };
