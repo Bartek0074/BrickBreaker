@@ -426,20 +426,21 @@ function animate() {
 
 // Event listeners
 window.addEventListener('keydown', e => {
-    if (e.code === 'ArrowLeft') keys.arrowLeft = true;
-    if (e.code === 'ArrowRight') keys.arrowRight = true;
+    if (e.code === 'ArrowLeft' && isGameStarted === true) keys.arrowLeft = true;
+    if (e.code === 'ArrowRight' && isGameStarted === true) keys.arrowRight = true;
     if (e.code  === 'Space' && isGameStarted === true) balls[0].isBallMoved = true;
     if (e.code  === 'Enter' && isGameStarted === false) startGame();
     if (e.code  === 'KeyP' && isGameStarted === true && isGamePaused === false) pauseGame();
     else if (e.code  === 'KeyP' && isGameStarted === true && isGamePaused === true) resumeGame();
     
-    controlPaddle();
+    if (isGameStarted === true) controlPaddle();
 })
 
 window.addEventListener('keyup', e => {
-    if (e.code === 'ArrowLeft') keys.arrowLeft = false;
-    if (e.code === 'ArrowRight') keys.arrowRight = false;
-    controlPaddle();
+    if (e.code === 'ArrowLeft' && isGameStarted === true) keys.arrowLeft = false;
+    if (e.code === 'ArrowRight' && isGameStarted === true) keys.arrowRight = false;
+
+    if (isGameStarted === true) controlPaddle();
 })
 
 // Start, stop game function
