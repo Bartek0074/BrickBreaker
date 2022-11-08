@@ -243,9 +243,25 @@ class Ball {
                     }
                 }
                 
+                // collision between wall and ball
+                for (let i = 0; i < wallElements.length; i++) {
+                    const distX = Math.abs(this.x - wallElements[i].x - (wallElements[i].w / 2));
+                    const distY = Math.abs(this.y - wallElements[i].y - (wallElements[i].h / 2));
 
+                    if (distX <= this.radius + (wallElements[i].w / 2) &&
+                    distY <= this.radius + (wallElements[i].h / 2)
+                    ) {
+                        if (this.x >= wallElements[i].x && this.x <= wallElements[i].x + wallElements[i].w) {
+                            this.dy = -this.dy;
+                        }
+                        else if (this.y >= wallElements[i].y && this.y <= wallElements[i].y + wallElements[i].h) {
+                            this.dx = -this.dx;
+                        }
+                    }
+                }
+
+                // miss ball
                 for (let i = 0; i < balls.length; i++) {
-                    // miss ball
                     if(balls[i].y - balls[i].radius >= canvas.height) {
                         balls.splice(i, 1);
 
@@ -288,6 +304,31 @@ class Brick {
             ctx.beginPath();
             ctx.rect(this.x, this.y, this.w, this.h);
             ctx.fillStyle = this.color;
+            ctx.fill();
+            ctx.strokeStyle = '#142F43';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        this.update = function() {
+
+            this.draw();
+        }
+    }
+}
+
+class WallElement {
+    constructor(x, y, w, h) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+
+        this.draw = function() {
+            ctx.beginPath();
+            ctx.rect(this.x, this.y, this.w, this.h);
+            ctx.fillStyle = '#B2B1B9';
             ctx.fill();
             ctx.strokeStyle = '#142F43';
             ctx.lineWidth = 2;
@@ -372,20 +413,13 @@ class Extras{
 let paddle;
 let balls = [];
 let bricks = [];
+let wallElements = [];
 let extrases = [];
-
-function initBall() {
-    const newBall = new Ball(12, 12, 5, 5, true);
-    const angle = randomIntFromRange(100, 120)
-    newBall.dx = Math.cos(angle * (Math.PI / 180)) * ballVelocity;
-    newBall.dy = Math.sin(angle * (Math.PI / 180)) * ballVelocity;
-    balls.push(newBall);
-    
-}
 
 function init() {
     balls = [];
     bricks = [];
+    wallElements = [];
     extrases = [];
 
     paddle = new Paddle(canvas.width/2 - paddleWidth/2, canvas.height - paddleHeight * 2, paddleWidth, paddleHeight);
@@ -406,6 +440,9 @@ function animate() {
         paddle.update();
         balls.forEach(ball => {
             ball.update();
+        })
+        wallElements.forEach(wallElement => {
+            wallElement.update();
         })
         bricks.forEach(brick => {
             brick.update();
@@ -485,4 +522,4 @@ function levelUp() {
 initInstruction();
 updateInfoGame();
 
-export { bricks, Brick };
+export { bricks, Brick, wallElements, WallElement };
