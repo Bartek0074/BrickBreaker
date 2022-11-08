@@ -154,11 +154,11 @@ class Ball {
                             // checking chances of pushing extras
                             if (bricks[i].lives === 0) {
                                 bricks.splice(i, 1);
-                                if (chance < 0.6) {
+                                if (chance < 0.06) {
                                     const extras = new Extras(this.x, this.y, '+3', extrasSecondColor);
                                     extrases.push(extras);
                                 }
-                                else if (chance < 0.9 && balls.length <= 250 && extrases.length <=5) {
+                                else if (chance < 0.09 && balls.length <= 250 && extrases.length <=5) {
                                     const extras = new Extras(this.x, this.y, 'x3', extrasFirstColor);
                                     extrases.push(extras);
                                 }
